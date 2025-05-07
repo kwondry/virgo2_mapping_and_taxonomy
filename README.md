@@ -28,19 +28,12 @@ virgo2_mapping_and_taxonomy/
 
 ## Prerequisites
 
-- Snakemake (version 8.20.0 or later)
-- Python 3.10 or later
-- VIRGO2 database (included in resources/VIRGO2_20250507)
+ 
+- conda
+- Snakemake (version 8.20.0 or later) 
+To install snakemake and conda, follow the instructions [on the kwondry website](https://kwondry.github.io/documentation/materials/getting-started/installation/#mambaminimamba)
 
-## Configuration
-
-The workflow must be configured through `config/config.yaml`. 
-- Input/output paths
-- VIRGO2 script locations
-- Resource allocations (threads, memory, runtime)
-
-
-## Database Setup
+### Database Setup
 
 In the current version of this pipeline, the exact database structure is very picky, and you need to download the database from Dropbox. After publication, the files will be available from the Ravel lab on zenodo.
 
@@ -72,6 +65,15 @@ Note: This step only needs to be performed once after downloading the workflow. 
 
 If you want to store the VIRGO2 database in a different location (e.g., a shared reference directory), you can move the entire VIRGO2_20250507 folder and update `virgo2` section of the `config.yaml` to have the **absolute** paths to your database.
 
+
+## Configuration
+
+The workflow must be configured through `config/config.yaml`. 
+- Input/output paths
+- VIRGO2 script locations
+- Resource allocations (threads, memory, runtime)
+
+
 ## Running the Workflow
 
 ### Test Data
@@ -88,7 +90,7 @@ A test dataset is provided in `resources/test_data/` containing three sample pai
    snakemake --use-conda --configfile config/config.yaml
    ```
 
-The test configuration is already set up in `config/config.yaml` with appropriate resource allocations for testing.
+The test configuration is already set up in `config/config.yaml`
 
 ### Running with your own data
 
