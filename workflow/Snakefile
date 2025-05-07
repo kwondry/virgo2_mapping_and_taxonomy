@@ -53,7 +53,7 @@ rule run_virgo2:
     params:
         out_dir = "temp/01.virgo2"
     shell:
-        "python {config['virgo2']['script_dir']}/{config['virgo2']['main_script']} map -r {input} -p {threads} -o {params.out_dir}/{wildcards.sample_id}"
+        "python {config[virgo2][script_dir]}/{config[virgo2][main_script]} map -r {input} -p {threads} -o {params.out_dir}/{wildcards.sample_id}"
 
 rule virgo2_combine:
     input:
@@ -70,7 +70,7 @@ rule virgo2_combine:
         runtime = config["resources"]["other"]["runtime"],
         partition = config["resources"]["other"]["partition"]
     shell:
-        "cd temp/01.virgo2/; python {config['virgo2']['script_dir']}/{config['virgo2']['main_script']} compile -i ./ -o ../../{config['output']['summary']}"
+        "cd temp/01.virgo2/; python {config[virgo2][script_dir]}/{config[virgo2][main_script]} compile -i ./ -o ../../{config[output][summary]}"
 
 rule virgo2_add_length:
     input:
@@ -88,7 +88,7 @@ rule virgo2_add_length:
         runtime = config["resources"]["other"]["runtime"],
         partition = config["resources"]["other"]["partition"]
     shell:
-        "python {config['virgo2']['script_dir']}/{config['virgo2']['accessory_scripts']['add_length']} {input} {params.prefix}"
+        "python {config[virgo2][script_dir]}/{config[virgo2][accessory_scripts][add_length]} {input} {params.prefix}"
 
 rule virgo2_relative_abundance:
     input:
@@ -104,4 +104,4 @@ rule virgo2_relative_abundance:
         runtime = config["resources"]["other"]["runtime"],
         partition = config["resources"]["other"]["partition"]
     shell:
-        "python {config['virgo2']['script_dir']}/{config['virgo2']['accessory_scripts']['relative_abundance']} {input} {output}"
+        "python {config[virgo2][script_dir]}/{config[virgo2][accessory_scripts][relative_abundance]} {input} {output}"
