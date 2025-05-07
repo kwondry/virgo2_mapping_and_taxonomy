@@ -28,10 +28,20 @@ virgo2_mapping_and_taxonomy/
 
 ## Prerequisites
 
- 
 - conda
-- Snakemake (version 8.20.0 or later) 
+- Snakemake (version 8.20.0 or later)   
 To install snakemake and conda, follow the instructions [on the kwondry website](https://kwondry.github.io/documentation/materials/getting-started/installation/#mambaminimamba)
+
+### Installation
+
+To install the workflow, run:
+
+```bash
+wget https://github.com/kwondry/virgo2_mapping_and_taxonomy/archive/refs/heads/main.zip
+unzip main.zip -d virgo2_mapping_and_taxonomy
+cd virgo2_mapping_and_taxonomy
+```
+
 
 ### Database Setup
 
