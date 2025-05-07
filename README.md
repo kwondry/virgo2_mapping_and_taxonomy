@@ -42,6 +42,16 @@ The workflow must be configured through `config/config.yaml`.
 
 ## Database Setup
 
+In the current version of this pipeline, the exact database structure is very picky, and you need to download the database from Dropbox. After publication, the files will be available from the Ravel lab on zenodo.
+
+As of now, you need to:
+
+1. get the dropbox link from Michael France  
+2. download the folder and move the contents into the `resources/VIRGO2_20250507` folder
+3. `gunzip` the `.txt.gz` files 
+4. replace the python scripts with the ones from this repository
+5. then do the following to setup the bowtie2 indicies:
+
 Before running the workflow, you need to build the Bowtie2 index for the VIRGO2 database. A setup script is provided to help with this process:
 
 1. Navigate to the resources directory:
@@ -58,13 +68,6 @@ Before running the workflow, you need to build the Bowtie2 index for the VIRGO2 
    ```bash
    ./setup_virgo2_db.sh
    ```
-
-The script will:
-- Check if Bowtie2 is installed
-- Verify the VIRGO2 database file exists
-- Build the Bowtie2 index using up to 12 threads
-- Create the index files in the VIRGO2_20250507 directory
-
 Note: This step only needs to be performed once after downloading the workflow. The index files will be reused in subsequent runs.
 
 If you want to store the VIRGO2 database in a different location (e.g., a shared reference directory), you can move the entire VIRGO2_20250507 folder and update `virgo2` section of the `config.yaml` to have the **absolute** paths to your database.
