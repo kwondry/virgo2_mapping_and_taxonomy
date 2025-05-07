@@ -1,0 +1,22 @@
+# macOS system files
+.DS_Store
+
+# Snakemake
+.snakemake/
+snakemake.log
+
+
+# Project specific
+results/
+*.log
+*.out
+*.err
+
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata 
+
+#data files
+resources/VIRGO2_20250507/*.gz

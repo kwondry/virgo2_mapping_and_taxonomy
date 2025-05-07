@@ -1,0 +1,31 @@
+# Input/Output paths
+input:
+  sample_sheet: "resources/test_data/sample_sheet.csv"
+
+# Output file paths
+output:
+  summary: "test_data.summary.NR.txt"
+  annotated: "test_data_virgo2_NR_anno.csv"
+  final: "test_data_virgo2_metagenomic_taxa.csv"
+
+# Virgo2 paths
+virgo2:
+  script_dir: "resources/VIRGO2_20250507"
+  main_script: "VIRGO2.py"
+  prefix: "test_data_virgo2"
+  accessory_scripts:
+    add_length: "Accessory_scripts/VIRGO2_add_length_taxa.py"
+    relative_abundance: "Accessory_scripts/VIRGO2_calc_species_comp_glcorr.py"
+
+# Resource configurations
+resources:
+  virgo2:
+    threads: 8
+    mem_mb: 32000 # Base memory allocation in MB
+    mem_increment: 16000 # Additional memory to add per retry in MB
+    runtime: "12h"
+    partition: "short"
+  other:
+    mem_mb: 200000
+    runtime: "12h"
+    partition: "short" 

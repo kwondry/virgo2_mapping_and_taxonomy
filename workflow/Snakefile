@@ -1,0 +1,107 @@
+localrules: cat_reads
+
+import pandas as pd
+import yaml
+
+configfile: "config/config.yaml"
+
+
+sample_list = pd.read_csv(config["input"]["sample_sheet"], index_col=False).to_dict(orient="records")
+ALL_SAMPLES = [r['sample_name'] for r in sample_list]
+
+
+rule target:
+    input:
+        config["output"]["final"]
+
+# set amount of memory and increase if it fails
+def get_mem_mb(wildcards, attempt):
+    return config["resources"]["virgo2"]["mem_mb"] + attempt * config["resources"]["virgo2"]["mem_increment"]
+
+def get_reads_for_sample(wildcards):
+    read_paths = []
+    for record in sample_list:
+        if record['sample_name'] == wildcards.sample_id:
+            read_paths.append(record['fastq_1'])
+            read_paths.append(record['fastq_2'])
+    return read_paths
+
+
+rule cat_reads:
+    input:
+        get_reads_for_sample
+    output:
+        "temp/00.cat_reads/{sample_id}.fq"
+    shell:
+        "cat {input} > {output}"
+
+
+rule run_virgo2:
+    input:
+        "temp/00.cat_reads/{sample_id}.fq"
+    output:
+        "temp/01.virgo2/{sample_id}.out"
+    conda:
+        "envs/virgo2.yaml"
+    threads:
+        config["resources"]["virgo2"]["threads"]
+    resources:
+        cpus_per_task = config["resources"]["virgo2"]["threads"],
+        mem_mb = get_mem_mb,
+        runtime = config["resources"]["virgo2"]["runtime"],
+        partition = config["resources"]["virgo2"]["partition"]
+    params:
+        out_dir = "temp/01.virgo2"
+    shell:
+        "python {config['virgo2']['script_dir']}/{config['virgo2']['main_script']} map -r {input} -p {threads} -o {params.out_dir}/{wildcards.sample_id}"
+
+rule virgo2_combine:
+    input:
+       expand("temp/01.virgo2/{sample_id}.out", sample_id=ALL_SAMPLES)
+    output:
+        config["output"]["summary"]
+    conda:
+        "envs/virgo2.yaml"
+    threads:
+        1
+    resources:
+        cpus_per_task = 1,
+        mem_mb = config["resources"]["other"]["mem_mb"],
+        runtime = config["resources"]["other"]["runtime"],
+        partition = config["resources"]["other"]["partition"]
+    shell:
+        "cd temp/01.virgo2/; python {config['virgo2']['script_dir']}/{config['virgo2']['main_script']} compile -i ./ -o ../../{config['output']['summary']}"
+
+rule virgo2_add_length:
+    input:
+       config["output"]["summary"]
+    output:
+        config["output"]["annotated"]
+    conda:
+        "envs/virgo2.yaml"
+    threads:
+        1
+    params:
+        prefix = config["virgo2"]["prefix"]
+    resources:
+        mem_mb = config["resources"]["other"]["mem_mb"],
+        runtime = config["resources"]["other"]["runtime"],
+        partition = config["resources"]["other"]["partition"]
+    shell:
+        "python {config['virgo2']['script_dir']}/{config['virgo2']['accessory_scripts']['add_length']} {input} {params.prefix}"
+
+rule virgo2_relative_abundance:
+    input:
+       config["output"]["annotated"]
+    output:
+        config["output"]["final"]
+    conda:
+        "envs/virgo2.yaml"
+    threads:
+        1
+    resources:
+        mem_mb = config["resources"]["other"]["mem_mb"],
+        runtime = config["resources"]["other"]["runtime"],
+        partition = config["resources"]["other"]["partition"]
+    shell:
+        "python {config['virgo2']['script_dir']}/{config['virgo2']['accessory_scripts']['relative_abundance']} {input} {output}"
