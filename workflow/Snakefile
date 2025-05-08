@@ -32,6 +32,19 @@ def get_reads_for_sample(wildcards):
                 read_paths.append(record['fastq_2'])
     return read_paths
 
+rule setup_virgo2_db:
+    output:
+        touch(os.path.join(config["virgo2"]["database_dir"], ".snakemake_setup_complete"))
+    conda:
+        "envs/virgo2.yaml"
+    threads: 1
+    resources:
+        mem_mb = config["resources"]["other"]["mem_mb"],
+        runtime = config["resources"]["other"]["runtime"],
+        partition = config["resources"]["other"]["partition"]
+    script:
+        "scripts/setup_virgo2_db.py"
+
 rule cat_reads:
     input:
         get_reads_for_sample
@@ -42,7 +55,8 @@ rule cat_reads:
 
 rule run_virgo2:
     input:
-        reads = "temp/00.cat_reads/{sample_id}.fq"
+        reads = "temp/00.cat_reads/{sample_id}.fq",
+        db_setup = os.path.join(config["virgo2"]["database_dir"], ".snakemake_setup_complete")
     output:
         "temp/01.virgo2/{sample_id}.out"
     conda:
