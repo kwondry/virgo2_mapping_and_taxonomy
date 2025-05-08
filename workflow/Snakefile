@@ -7,11 +7,13 @@ from snakemake.utils import validate
 
 configfile: "config/config.yaml"
 
-# Validate samplesheet against schema
-validate(config["input"]["sample_sheet"], "config/samplesheet.schema.yaml")
+# Read samplesheet
+sample_list = pd.read_csv(config["input"]["sample_sheet"], index_col=False)
 
-sample_list = pd.read_csv(config["input"]["sample_sheet"], index_col=False).to_dict(orient="records")
-ALL_SAMPLES = [r['sample'] for r in sample_list]
+# Validate samplesheet against schema
+validate(sample_list, "config/samplesheet.schema.yaml")
+
+ALL_SAMPLES = sample_list['sample'].tolist()
 
 rule target:
     input:
@@ -23,7 +25,7 @@ def get_mem_mb(wildcards, attempt):
 
 def get_reads_for_sample(wildcards):
     read_paths = []
-    for record in sample_list:
+    for record in sample_list.to_dict(orient="records"):
         if record['sample'] == wildcards.sample_id:
             read_paths.append(record['fastq_1'])
             if 'fastq_2' in record and record['fastq_2']:
