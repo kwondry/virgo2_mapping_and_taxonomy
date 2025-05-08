@@ -37,11 +37,13 @@ rule setup_virgo2_db:
         touch(os.path.join(config["virgo2"]["database_dir"], ".snakemake_setup_complete"))
     conda:
         "envs/virgo2.yaml"
-    threads: 1
+    threads:
+        config["resources"]["db_setup"]["threads"]
     resources:
-        mem_mb = config["resources"]["other"]["mem_mb"],
-        runtime = config["resources"]["other"]["runtime"],
-        partition = config["resources"]["other"]["partition"]
+        cpus_per_task = config["resources"]["db_setup"]["threads"],
+        mem_mb = config["resources"]["db_setup"]["mem_mb"],
+        runtime = config["resources"]["db_setup"]["runtime"],
+        partition = config["resources"]["db_setup"]["partition"]
     script:
         "scripts/setup_virgo2_db.py"
 
