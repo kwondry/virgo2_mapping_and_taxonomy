@@ -2,17 +2,20 @@ localrules: cat_reads
 
 import pandas as pd
 import yaml
+import os
+from snakemake.utils import validate
 
 configfile: "config/config.yaml"
 
+# Validate samplesheet against schema
+validate(config["input"]["sample_sheet"], "config/samplesheet.schema.yaml")
 
 sample_list = pd.read_csv(config["input"]["sample_sheet"], index_col=False).to_dict(orient="records")
-ALL_SAMPLES = [r['sample_name'] for r in sample_list]
-
+ALL_SAMPLES = [r['sample'] for r in sample_list]
 
 rule target:
     input:
-        config["output"]["final"]
+        os.path.join(config["output"]["results_dir"], f"{config['output']['prefix']}_metagenomic_relative_abundance.csv")
 
 # set amount of memory and increase if it fails
 def get_mem_mb(wildcards, attempt):
@@ -21,11 +24,11 @@ def get_mem_mb(wildcards, attempt):
 def get_reads_for_sample(wildcards):
     read_paths = []
     for record in sample_list:
-        if record['sample_name'] == wildcards.sample_id:
+        if record['sample'] == wildcards.sample_id:
             read_paths.append(record['fastq_1'])
-            read_paths.append(record['fastq_2'])
+            if 'fastq_2' in record and record['fastq_2']:
+                read_paths.append(record['fastq_2'])
     return read_paths
-
 
 rule cat_reads:
     input:
@@ -35,10 +38,9 @@ rule cat_reads:
     shell:
         "cat {input} > {output}"
 
-
 rule run_virgo2:
     input:
-        "temp/00.cat_reads/{sample_id}.fq"
+        reads = "temp/00.cat_reads/{sample_id}.fq"
     output:
         "temp/01.virgo2/{sample_id}.out"
     conda:
@@ -51,15 +53,16 @@ rule run_virgo2:
         runtime = config["resources"]["virgo2"]["runtime"],
         partition = config["resources"]["virgo2"]["partition"]
     params:
-        out_dir = "temp/01.virgo2"
-    shell:
-        "python {config[virgo2][script_dir]}/{config[virgo2][main_script]} map -r {input} -p {threads} -o {params.out_dir}/{wildcards.sample_id}"
+        output_prefix = "temp/01.virgo2/{sample_id}",
+        use_coverage = True
+    script:
+        "scripts/virgo2_map.py"
 
 rule virgo2_combine:
     input:
-       expand("temp/01.virgo2/{sample_id}.out", sample_id=ALL_SAMPLES)
+        expand("temp/01.virgo2/{sample_id}.out", sample_id=ALL_SAMPLES)
     output:
-        config["output"]["summary"]
+        os.path.join(config["output"]["results_dir"], f"{config['output']['prefix']}.summary.NR.txt")
     conda:
         "envs/virgo2.yaml"
     threads:
@@ -69,32 +72,31 @@ rule virgo2_combine:
         mem_mb = config["resources"]["other"]["mem_mb"],
         runtime = config["resources"]["other"]["runtime"],
         partition = config["resources"]["other"]["partition"]
-    shell:
-        "cd temp/01.virgo2/; python {config[virgo2][script_dir]}/{config[virgo2][main_script]} compile -i ./ -o ../../{config[output][summary]}"
+    script:
+        "scripts/virgo2_compile.py"
 
 rule virgo2_add_length:
     input:
-       config["output"]["summary"]
+        summary = os.path.join(config["output"]["results_dir"], f"{config['output']['prefix']}.summary.NR.txt"),
+        database_dir = config["virgo2"]["database_dir"]
     output:
-        config["output"]["annotated"]
+        os.path.join(config["output"]["results_dir"], f"{config['output']['prefix']}_NR_anno.csv")
     conda:
         "envs/virgo2.yaml"
     threads:
         1
-    params:
-        prefix = config["virgo2"]["prefix"]
     resources:
         mem_mb = config["resources"]["other"]["mem_mb"],
         runtime = config["resources"]["other"]["runtime"],
         partition = config["resources"]["other"]["partition"]
-    shell:
-        "python {config[virgo2][script_dir]}/{config[virgo2][accessory_scripts][add_length]} {input} {params.prefix}"
+    script:
+        "scripts/add_length_taxa.py"
 
 rule virgo2_relative_abundance:
     input:
-       config["output"]["annotated"]
+        os.path.join(config["output"]["results_dir"], f"{config['output']['prefix']}_NR_anno.csv")
     output:
-        config["output"]["final"]
+        os.path.join(config["output"]["results_dir"], f"{config['output']['prefix']}_metagenomic_relative_abundance.csv")
     conda:
         "envs/virgo2.yaml"
     threads:
@@ -103,5 +105,5 @@ rule virgo2_relative_abundance:
         mem_mb = config["resources"]["other"]["mem_mb"],
         runtime = config["resources"]["other"]["runtime"],
         partition = config["resources"]["other"]["partition"]
-    shell:
-        "python {config[virgo2][script_dir]}/{config[virgo2][accessory_scripts][relative_abundance]} {input} {output}"
+    script:
+        "scripts/virgo2_relative_abundance.py"

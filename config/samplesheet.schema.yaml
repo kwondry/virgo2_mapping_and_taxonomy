@@ -1,0 +1,17 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+properties:
+  sample:
+    type: string
+    description: "Sample identifier"
+  fastq_1:
+    type: string
+    description: "Path to the first FASTQ file (R1)"
+    pattern: "^.*\\.gz$"
+  fastq_2:
+    type: string
+    description: "Path to the second FASTQ file (R2, optional for single-end sequencing)"
+    pattern: "^.*\\.gz$"
+required:
+  - sample
+  - fastq_1

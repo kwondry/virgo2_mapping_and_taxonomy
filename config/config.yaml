@@ -4,15 +4,14 @@ input:
 
 # Output file paths
 output:
-  summary: "test_data.summary.NR.txt"
-  annotated: "test_data_virgo2_NR_anno.csv"
-  final: "test_data_virgo2_metagenomic_taxa.csv"
+  prefix: "test_data_virgo2"
+  results_dir: "results"
 
 # Virgo2 paths
 virgo2:
   script_dir: "resources/VIRGO2_20250507"
   main_script: "VIRGO2.py"
-  prefix: "test_data_virgo2"
+  database_dir: "resources/VIRGO2_20250507"
   accessory_scripts:
     add_length: "Accessory_scripts/VIRGO2_add_length_taxa.py"
     relative_abundance: "Accessory_scripts/VIRGO2_calc_species_comp_glcorr.py"
