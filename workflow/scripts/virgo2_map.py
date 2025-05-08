@@ -97,7 +97,7 @@ def main():
 
         # Process the mapping results
         samOut = covCorr(f"{output_prefix}.noHead.sam", f"{output_prefix}.cov")
-        geneCounts = geneCounts(samOut)
+        gene_counts_df = geneCounts(samOut)
 
         # Clean up temporary files
         garbageCollect(f'{output_prefix}.noHead.sam')
@@ -133,11 +133,11 @@ def main():
 
         # Process the mapping results
         samOut = noCovCorr(f"{output_prefix}.noHead.sam")
-        geneCounts = geneCounts(samOut)
+        gene_counts_df = geneCounts(samOut)
         garbageCollect(f'{output_prefix}.noHead.sam')
 
     # Write output
-    geneCounts.to_csv(snakemake.output[0], sep="\t")
+    gene_counts_df.to_csv(snakemake.output[0], sep="\t")
 
 if __name__ == "__main__":
     main() 

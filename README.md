@@ -37,11 +37,9 @@ To install snakemake and conda, follow the instructions [on the kwondry website]
 To install the workflow, run:
 
 ```bash
-wget https://github.com/kwondry/virgo2_mapping_and_taxonomy/archive/refs/heads/main.zip
-unzip main.zip -d virgo2_mapping_and_taxonomy
-cd virgo2_mapping_and_taxonomy
+curl -L https://github.com/kwondry/virgo2_mapping_and_taxonomy/archive/refs/heads/main.zip -o main.zip
+unzip main.zip && rm main.zip
 ```
-
 
 ### Database Setup
 
