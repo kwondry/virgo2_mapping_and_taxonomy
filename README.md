@@ -19,12 +19,17 @@ The workflow performs the following steps:
 ```
 virgo2_mapping_and_taxonomy/
 ├── config/             # Configuration files
-├── resources/          # Reference data and scripts
-│   ├── VIRGO2_20250507/  # VIRGO2 database and scripts
-│   ├── test_data/      # Test dataset
-│   └── setup_virgo2_db.sh  # Database setup script
+│   └── config.yaml     # Main configuration file
 └── workflow/           # Snakemake workflow files
+    ├── rules/         # Modular rule files
+    ├── envs/          # Conda environment files
+    ├── scripts/       # Analysis scripts
+    ├── resources/     # Reference data and test files
+    │   └── test_data/ # Test dataset
+    └── Snakefile      # Main workflow definition
 ```
+
+Note: The VIRGO2 database is not included in this repository and should be downloaded separately as described in the Database Setup section.
 
 ## Prerequisites
 
@@ -43,36 +48,15 @@ unzip main.zip && rm main.zip
 
 ### Database Setup
 
-In the current version of this pipeline, the exact database structure is very picky, and you need to download the database from Dropbox. After publication, the files will be available from the Ravel lab on zenodo.
+The VIRGO2 database is currently available via Dropbox. After publication, the files will be available from the Ravel lab on Zenodo.
 
-As of now, you need to:
+To set up the database:
 
-1. get the dropbox link from Michael France  
-2. download the folder and move the contents into the `resources/VIRGO2_20250507` folder
-3. `gunzip` the `.txt.gz` files 
-4. replace the python scripts with the ones from this repository
-5. then do the following to setup the bowtie2 indicies:
+1. Get the Dropbox link from Michael France
+2. Download and extract the database files to your preferred location
+3. Update the `virgo2` section in `config/config.yaml` with the **absolute** path to your database location
 
-Before running the workflow, you need to build the Bowtie2 index for the VIRGO2 database. A setup script is provided to help with this process:
-
-1. Navigate to the resources directory:
-   ```bash
-   cd virgo2_mapping_and_taxonomy/resources
-   ```
-
-2. Make the setup script executable:
-   ```bash
-   chmod +x setup_virgo2_db.sh
-   ```
-
-3. Run the setup script:
-   ```bash
-   ./setup_virgo2_db.sh
-   ```
-Note: This step only needs to be performed once after downloading the workflow. The index files will be reused in subsequent runs.
-
-If you want to store the VIRGO2 database in a different location (e.g., a shared reference directory), you can move the entire VIRGO2_20250507 folder and update `virgo2` section of the `config.yaml` to have the **absolute** paths to your database.
-
+Note: The database location can be anywhere on your system - it does not need to be within this workflow directory.
 
 ## Configuration
 
@@ -120,14 +104,17 @@ To run the workflow with your own data:
 
 ### Running on a Cluster
 
-To run the workflow on a SLURM cluster:
+To submit the workflow to the cluster, use the provided submission script:
+
 ```bash
-snakemake --executor slurm --use-conda --configfile config/config.yaml --jobs 100
+sbatch ./submit_jobs.sh
 ```
+
+This is currently configured for the kwon lab on the O2 cluster, you may need to edit this script for your system.
 
 ## Output Files
 
 The workflow generates several output files:
-- `*.summary.NR.txt`: Summary of mapping results
-- `*_virgo2_NR_anno.csv`: Annotated results with taxonomic information
-- `*_virgo2_metagenomic_taxa.csv`: Final output with taxonomic classifications
+- `*.summary.NR.txt`: Summary of mapping results at the gene level
+- `*_virgo2_NR_anno.csv`: results with the gene lengths and annotations added
+- `*_virgo2_metagenomic_taxa.csv`: taxonomic relative abundances calculated from the gene counts corrected for gene length
