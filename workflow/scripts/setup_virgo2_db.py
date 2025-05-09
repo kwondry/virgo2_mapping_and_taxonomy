@@ -28,7 +28,6 @@ def gunzip_txt_files(directory):
             logger.info(f"Decompressing {gz_file}")
             try:
                 subprocess.run(["gunzip", "-f", gz_file], check=True)
-                logger.info(f"Successfully decompressed {gz_file}")
             except subprocess.CalledProcessError as e:
                 logger.error(f"Error decompressing {gz_file}: {e}")
                 raise
@@ -109,7 +108,7 @@ def validate_database_location(config):
     if missing_files:
         raise FileNotFoundError(
             f"Missing required database files in {database_dir}:\n"
-            f"- {'\n- '.join(missing_files)}\n"
+            f"- {'chr(10)- '.join(missing_files)}\n"
             "Please ensure all required database files are present."
         )
     
