@@ -109,7 +109,7 @@ def validate_database_location(config):
     if missing_files:
         raise FileNotFoundError(
             f"Missing required database files in {database_dir}:\n"
-            f"- {chr(10)- }".join(missing_files)}\n"
+            f"- {'\n- '.join(missing_files)}\n"
             "Please ensure all required database files are present."
         )
     

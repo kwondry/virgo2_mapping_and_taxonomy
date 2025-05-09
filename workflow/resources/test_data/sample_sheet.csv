@@ -1,4 +1,4 @@
 sample,fastq_1,fastq_2
-V2_2395,resources/test_data/V2_2395_subsample.1.fastq.gz,resources/test_data/V2_2395_subsample.2.fastq.gz
-V2_2398,resources/test_data/V2_2398_subsample.1.fastq.gz,resources/test_data/V2_2398_subsample.2.fastq.gz
-V2_2400,resources/test_data/V2_2400_subsample.1.fastq.gz,resources/test_data/V2_2400_subsample.2.fastq.gz
+V2_2395,workflow/resources/test_data/V2_2395_subsample.1.fastq.gz,workflow/resources/test_data/V2_2395_subsample.2.fastq.gz
+V2_2398,workflow/resources/test_data/V2_2398_subsample.1.fastq.gz,workflow/resources/test_data/V2_2398_subsample.2.fastq.gz
+V2_2400,workflow/resources/test_data/V2_2400_subsample.1.fastq.gz,workflow/resources/test_data/V2_2400_subsample.2.fastq.gz
